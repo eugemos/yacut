@@ -16,5 +16,5 @@ from . import app, db
 
 
 @app.route('/')
-def index_view():
-    return render_template('index.html')
+def create_short_link():
+    return render_template('create_short_link.html')
