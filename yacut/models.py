@@ -2,19 +2,17 @@ from datetime import datetime
 import random
 
 from yacut import db
+from .constants import (
+    SHORT_LINK_DEFAULT_CHARS, SHORT_LINK_DEFAULT_LENGTH, SHORT_LINK_MAX_LENGTH
+)
 
 
-SHORT_LINK_DEFAULT_CHARS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-SHORT_LINK_DEFAULT_LENGTH = 6
-SHORT_LINK_MAX_LENGTH = 16
-SHORT_LINK_REGEXP = r'[-_0-9a-zA-Z]+'
-
-def generate_short_link():
+def get_unique_short_id():
     link = ''.join(random.choices(
         SHORT_LINK_DEFAULT_CHARS, k=SHORT_LINK_DEFAULT_LENGTH
     ))
     if URLMap.query.filter_by(short=link).first():
-        return generate_short_link()
+        return get_unique_short_id()
     
     return link
 
@@ -25,6 +23,6 @@ class URLMap(db.Model):
     short = db.Column(
         db.String(SHORT_LINK_MAX_LENGTH),
         unique=True,
-        default=generate_short_link
+        default=get_unique_short_id
     )
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
