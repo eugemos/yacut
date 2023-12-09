@@ -4,7 +4,7 @@ from flask import abort, flash, redirect, render_template, url_for
 
 from . import app, db
 # from .forms import OpinionForm
-# from .models import Opinion
+from .models import URLMap
 
 
 # def random_opinion():
