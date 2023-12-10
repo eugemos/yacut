@@ -23,7 +23,7 @@ class URLMapForm(FlaskForm):
             Optional(),
             Regexp(
                 SHORT_LINK_REGEXP,
-                message='Это поле может содержать только символы: 0-9, a-z, A-Z, -, _'
+                message='Это поле может содержать только символы: 0-9, a-z, A-Z, _'
             )
         ]
     )

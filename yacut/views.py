@@ -8,10 +8,12 @@ from .models import URLMap
 
 
 @app.route('/', methods=['GET', 'POST'])
-def create_short_link():
+def create_short_link_view():
     form = URLMapForm()
     if form.validate_on_submit():
-        custom_id = form.custom_id.data.strip()
+        custom_id = form.custom_id.data
+        if custom_id is not None:
+            custom_id = custom_id.strip()
         if custom_id and URLMap.query.filter_by(short=custom_id).first():
             flash(
                 'Предложенный вариант короткой ссылки уже существует.',
@@ -20,7 +22,7 @@ def create_short_link():
             return render_template('create_short_link.html', form=form)
         url_map = URLMap(
             original=form.original_link.data, 
-            short=custom_id if custom_id else None, 
+            short=custom_id or None, 
         )
         db.session.add(url_map)
         db.session.commit()
