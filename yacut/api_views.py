@@ -52,9 +52,10 @@ def create_short_link():
         request.base_url.removesuffix('api/id/') + url_map.short
     )
     return (
-        jsonify(dict(url=url_map.original, short_link=short_link)), 
+        jsonify(dict(url=url_map.original, short_link=short_link)),
         201
     )
+
 
 @app.route('/api/id/<string:short_link>/', methods=['GET'])
 def get_original_link(short_link):

@@ -15,7 +15,9 @@
         <div class="col-sm">
           <form method="POST" novalidate>
             {{ form.csrf_token }}
-            {{ form.original_link(class="form-control form-control-lg py-2 mb-3", placeholder=form.original_link.label.text) }}
+            {{ form.original_link(
+              class="form-control form-control-lg py-2 mb-3",
+              placeholder=form.original_link.label.text) }}
             <p>
               {% if form.original_link.errors %}
                 {% for error in form.original_link.errors %}
@@ -23,7 +25,9 @@
                 {% endfor %}
               {% endif %}
             </p>
-            {{ form.custom_id(class="form-control form-control-lg py-2 mb-3", placeholder=form.custom_id.label.text, rows="3", cols="40")}}
+            {{ form.custom_id(
+              class="form-control form-control-lg py-2 mb-3",
+              placeholder=form.custom_id.label.text, rows="3", cols="40")}}
             <p>
               {% if form.custom_id.errors %}
                 {% for error in form.custom_id.errors %}
@@ -49,7 +53,9 @@
               {% if messages %}
                 {% for category, message in messages %}
                   {% if category == "error" %}
-                    <h5 class="text-center" style="color:red">{{ message }}</h5>
+                    <h5 class="text-center" style="color:red">
+                      {{ message }}
+                    </h5>
                   {% elif category == "link" %}
                     <p class="text-center">
                       <a href="{{ message }}">{{ message }}</a>

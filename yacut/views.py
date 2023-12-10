@@ -1,6 +1,4 @@
-# from random import randrange
-
-from flask import abort, flash, redirect, render_template, url_for, request
+from flask import flash, redirect, render_template, request
 
 from . import app, db
 from .forms import URLMapForm
@@ -29,7 +27,7 @@ def create_short_link_view():
         flash('Ваша новая ссылка готова:')
         flash(f'{request.base_url}{url_map.short}', category='link')
         return render_template('create_short_link.html', form=form)
-        
+
     return render_template('create_short_link.html', form=form)
 
 

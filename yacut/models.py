@@ -13,7 +13,7 @@ def get_unique_short_id():
     ))
     if URLMap.query.filter_by(short=link).first():
         return get_unique_short_id()
-    
+
     return link
 
 
