@@ -1,13 +1,28 @@
 import re
+from urllib.parse import urlparse, urlunparse
 
+from flask import request
+from . import db
 from .constants import SHORT_LINK_REGEXP
-from .exceptions import InvalidInputData
+from .exceptions import InvalidInputData, ShortLinkAlreadyExists
 from .models import URLMap
+
+
+def create_url_id(data):
+    url_map = json_to_url_map(data)
+    db.session.add(url_map)
+    db.session.commit()
+    return url_map.short
+
+def url_id_to_link(id):
+    scheme, netloc, *_ = urlparse(request.base_url)
+    return urlunparse((scheme, netloc, id, '', '', ''))
 
 
 def json_to_url_map(data):
     if not data:
         raise InvalidInputData('Отсутствует тело запроса')
+        # raise EmptyInputData()
     if 'url' not in data:
         raise InvalidInputData('"url" является обязательным полем!')
 
@@ -31,9 +46,7 @@ def json_to_url_map(data):
                 )
 
             if URLMap.query.filter_by(short=custom_id).first():
-                raise InvalidInputData(
-                    'Предложенный вариант короткой ссылки уже существует.'
-                )
+                raise ShortLinkAlreadyExists()
 
             url_map.short = custom_id
 

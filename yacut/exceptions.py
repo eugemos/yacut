@@ -1,10 +1,19 @@
-class InvalidInputData(Exception):
+class ProgramError(Exception):
+    pass
+
+
+class InvalidInputData(ProgramError):
+    # pass
     def __init__(self, message):
         super().__init__()
         self.message = message
 
 
-class InvalidAPIUsage(Exception):
+class ShortLinkAlreadyExists(ProgramError):
+    message = 'Предложенный вариант короткой ссылки уже существует.'
+
+
+class InvalidAPIUsage(ProgramError):
     status_code = 400
 
     def __init__(self, message, status_code=None):
