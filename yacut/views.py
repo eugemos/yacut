@@ -1,9 +1,9 @@
-from flask import flash, redirect, render_template, request
+from flask import abort, flash, redirect, render_template, request
 
 from . import app, db
 from .forms import URLMapForm
 from .models import URLMap
-from .utils import create_url_id, url_id_to_link
+from .utils import create_url_id, url_id_to_link, url_id_to_original_link
 from .exceptions import ShortLinkAlreadyExists
 
 
@@ -26,8 +26,10 @@ def create_short_link_view():
     return render_template('create_short_link.html', form=form)
 
 
-@app.route('/<string:short_link>')
-def access_short_link(short_link):
-    return redirect(
-        URLMap.query.filter_by(short=short_link).first_or_404().original
-    )
+@app.route('/<string:url_id>')
+def access_short_link(url_id):
+    url = url_id_to_original_link(url_id)
+    if not url:
+        abort(404)
+
+    return redirect(url)

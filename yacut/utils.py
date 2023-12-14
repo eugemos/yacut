@@ -51,3 +51,8 @@ def json_to_url_map(data):
             url_map.short = custom_id
 
     return url_map
+
+
+def url_id_to_original_link(id):
+    url_map = URLMap.query.filter_by(short=id).first()
+    return url_map and url_map.original
