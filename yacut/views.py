@@ -1,9 +1,9 @@
-from flask import abort, flash, redirect, render_template, request
+from flask import abort, flash, redirect, render_template
 
-from . import app, db
+from . import app
 from .forms import URLMapForm
-from .models import URLMap
-from .utils import create_url_id, url_id_to_link, url_id_to_original_link
+from .utils import (
+    create_url_id, url_id_to_short_link, url_id_to_original_link)
 from .exceptions import ShortLinkAlreadyExists
 
 
@@ -20,7 +20,7 @@ def create_short_link_view():
             return render_template('create_short_link.html', form=form)
 
         flash('Ваша новая ссылка готова:')
-        flash(url_id_to_link(url_id), category='link')
+        flash(url_id_to_short_link(url_id), category='link')
         return render_template('create_short_link.html', form=form)
 
     return render_template('create_short_link.html', form=form)

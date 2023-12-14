@@ -3,7 +3,6 @@ class ProgramError(Exception):
 
 
 class InvalidInputData(ProgramError):
-    # pass
     def __init__(self, message):
         super().__init__()
         self.message = message

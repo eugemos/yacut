@@ -1,9 +1,10 @@
 from flask import jsonify, request
 
-from . import app, db
-from .exceptions import InvalidAPIUsage, InvalidInputData, ShortLinkAlreadyExists
-from .models import URLMap
-from .utils import create_url_id, url_id_to_link, url_id_to_original_link
+from . import app
+from .exceptions import (
+    InvalidAPIUsage, InvalidInputData, ShortLinkAlreadyExists)
+from .utils import (
+    create_url_id, url_id_to_short_link, url_id_to_original_link)
 
 
 @app.route('/api/id/', methods=['POST'])
@@ -16,7 +17,7 @@ def create_short_link():
 
     return (
         jsonify(dict(
-            url=request_data['url'], short_link=url_id_to_link(url_id)
+            url=request_data['url'], short_link=url_id_to_short_link(url_id)
         )),
         201
     )

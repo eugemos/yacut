@@ -9,18 +9,33 @@ from .models import URLMap
 
 
 def create_url_id(data):
+    """Создаёт идентификатор для URL, заданного в data['url'], заносит его
+    в БД и возвращает.
+    """
     url_map = json_to_url_map(data)
     db.session.add(url_map)
     db.session.commit()
     return url_map.short
 
 
-def url_id_to_link(id):
+def url_id_to_short_link(id):
+    """Возвращает короткий URL, соответствующий идентификатору URL."""
     scheme, netloc, *_ = urlparse(request.base_url)
     return urlunparse((scheme, netloc, id, '', '', ''))
 
 
+def url_id_to_original_link(id):
+    """Возвращает оригинальный URL, соответствующий идентификатору URL."""
+    url_map = URLMap.query.filter_by(short=id).first()
+    return url_map and url_map.original
+
+
 def json_to_url_map(data):
+    """Создаёт и возвращает объект типа models.URLMap, на основании данных
+    содержащихся в словаре data.
+    Осуществляется валидация входных данных, а также проверка уникальности
+    предлагаемого идентификатора URL.
+    """
     if not data:
         raise InvalidInputData('Отсутствует тело запроса')
     if 'url' not in data:
@@ -51,8 +66,3 @@ def json_to_url_map(data):
             url_map.short = custom_id
 
     return url_map
-
-
-def url_id_to_original_link(id):
-    url_map = URLMap.query.filter_by(short=id).first()
-    return url_map and url_map.original
