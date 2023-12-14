@@ -14,6 +14,7 @@ def create_url_id(data):
     db.session.commit()
     return url_map.short
 
+
 def url_id_to_link(id):
     scheme, netloc, *_ = urlparse(request.base_url)
     return urlunparse((scheme, netloc, id, '', '', ''))
@@ -22,7 +23,6 @@ def url_id_to_link(id):
 def json_to_url_map(data):
     if not data:
         raise InvalidInputData('Отсутствует тело запроса')
-        # raise EmptyInputData()
     if 'url' not in data:
         raise InvalidInputData('"url" является обязательным полем!')
 
