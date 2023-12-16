@@ -3,7 +3,7 @@ from flask import abort, flash, redirect, render_template
 from . import app
 from .forms import URLMapForm
 from .utils import (
-    create_url_id, url_id_to_short_link, url_id_to_original_link)
+    create_url_map, url_id_to_short_link, url_id_to_original_link)
 from .exceptions import ShortLinkAlreadyExists
 
 
@@ -12,9 +12,9 @@ def create_short_link_view():
     form = URLMapForm()
     if form.validate_on_submit():
         try:
-            url_id = create_url_id(dict(
-                url=form.original_link.data, custom_id=form.custom_id.data
-            ))
+            url_id = create_url_map(dict(
+                original=form.original_link.data, short=form.custom_id.data
+            )).short
         except ShortLinkAlreadyExists as error:
             flash(error.message, category='error')
             return render_template('create_short_link.html', form=form)

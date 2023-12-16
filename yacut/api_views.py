@@ -4,14 +4,14 @@ from . import app
 from .exceptions import (
     InvalidAPIUsage, InvalidInputData, ShortLinkAlreadyExists)
 from .utils import (
-    create_url_id, url_id_to_short_link, url_id_to_original_link)
+    create_url_map, url_id_to_short_link, url_id_to_original_link, validate_data)
 
 
 @app.route('/api/id/', methods=['POST'])
 def create_short_link():
     request_data = request.get_json()
     try:
-        url_id = create_url_id(request_data)
+        url_id = create_url_map(validate_data(request_data)).short
     except (InvalidInputData, ShortLinkAlreadyExists) as error:
         raise InvalidAPIUsage(error.message)
 

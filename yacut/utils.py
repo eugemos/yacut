@@ -8,33 +8,28 @@ from .exceptions import InvalidInputData, ShortLinkAlreadyExists
 from .models import URLMap
 
 
-def create_url_id(data):
-    """Создаёт идентификатор для URL, заданного в data['url'], заносит его
-    в БД и возвращает.
-    """
-    url_map = json_to_url_map(data)
-    db.session.add(url_map)
-    db.session.commit()
-    return url_map.short
-
-
 def url_id_to_short_link(id):
-    """Возвращает короткий URL, соответствующий идентификатору URL."""
+    """Возвращает короткий URL, созданный на основании заданного
+    идентификатора.
+    """
     scheme, netloc, *_ = urlparse(request.base_url)
     return urlunparse((scheme, netloc, id, '', '', ''))
 
 
 def url_id_to_original_link(id):
-    """Возвращает оригинальный URL, соответствующий идентификатору URL."""
+    """Возвращает оригинальный URL, соответствующий заданному идентификатору,
+    или None, если такого идентификатора нет в БД.
+    """
     url_map = URLMap.query.filter_by(short=id).first()
-    return url_map and url_map.original
+    if url_map:
+        return url_map.original
 
 
-def json_to_url_map(data):
-    """Создаёт и возвращает объект типа models.URLMap, на основании данных
-    содержащихся в словаре data.
-    Осуществляется валидация входных данных, а также проверка уникальности
-    предлагаемого идентификатора URL.
+def validate_data(data):
+    """Выполняет валидацию данных, содержащихся в словаре data с ключами
+    'url' и 'custom_id' (необязательный).
+    Возвращает словарь валидированных данных с ключами 'original' и 'short'
+    (необязательный).
     """
     if not data:
         raise InvalidInputData('Отсутствует тело запроса')
@@ -45,7 +40,7 @@ def json_to_url_map(data):
     if not (isinstance(url, str) and url):
         raise InvalidInputData('Поле "url" должно быть непустой строкой.')
 
-    url_map = URLMap(original=url)
+    validated_data = dict(original=url)
     if 'custom_id' in data and data['custom_id'] is not None:
         custom_id = data['custom_id']
         if not isinstance(custom_id, str):
@@ -60,9 +55,21 @@ def json_to_url_map(data):
                     'Указано недопустимое имя для короткой ссылки'
                 )
 
-            if URLMap.query.filter_by(short=custom_id).first():
-                raise ShortLinkAlreadyExists()
+            validated_data['short'] = custom_id
 
-            url_map.short = custom_id
+    return validated_data
 
+
+def create_url_map(data):
+    """Создаёт в БД объект модели URLMap на основании словаря data
+    с ключами 'original' и 'short' (необязательный). При этом, выполняется
+    проверка уникальности значения, заданного ключём 'short' (при наличии).
+    """
+    if ('short' in data
+            and URLMap.query.filter_by(short=data['short']).first()):
+        raise ShortLinkAlreadyExists()
+
+    url_map = URLMap(**data)
+    db.session.add(url_map)
+    db.session.commit()
     return url_map
