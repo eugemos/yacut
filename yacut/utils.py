@@ -1,14 +1,17 @@
+import random
 import re
 from urllib.parse import urlparse, urlunparse
 
 from flask import request
 from . import db
-from .constants import SHORT_LINK_REGEXP
+from .constants import (
+    SHORT_LINK_REGEXP, SHORT_LINK_DEFAULT_CHARS, SHORT_LINK_DEFAULT_LENGTH
+)
 from .exceptions import InvalidInputData, ShortLinkAlreadyExists
 from .models import URLMap
 
 
-def url_id_to_short_link(id):
+def convert_url_id_to_short_link(id):
     """Возвращает короткий URL, созданный на основании заданного
     идентификатора.
     """
@@ -16,7 +19,7 @@ def url_id_to_short_link(id):
     return urlunparse((scheme, netloc, id, '', '', ''))
 
 
-def url_id_to_original_link(id):
+def get_original_link(id):
     """Возвращает оригинальный URL, соответствующий заданному идентификатору,
     или None, если такого идентификатора нет в БД.
     """
@@ -56,7 +59,6 @@ def validate_data(data):
                 )
 
             validated_data['short'] = custom_id
-
     return validated_data
 
 
@@ -65,11 +67,24 @@ def create_url_map(data):
     с ключами 'original' и 'short' (необязательный). При этом, выполняется
     проверка уникальности значения, заданного ключём 'short' (при наличии).
     """
-    if ('short' in data
-            and URLMap.query.filter_by(short=data['short']).first()):
-        raise ShortLinkAlreadyExists()
+    if 'short' in data:
+        if URLMap.query.filter_by(short=data['short']).first():
+            raise ShortLinkAlreadyExists()
+    else:
+        data['short'] = get_unique_short_id()
 
     url_map = URLMap(**data)
     db.session.add(url_map)
     db.session.commit()
     return url_map
+
+
+def get_unique_short_id():
+    """Создаёт и возвращает уникальный идентификатор URL."""
+    link = ''.join(random.choices(
+        SHORT_LINK_DEFAULT_CHARS, k=SHORT_LINK_DEFAULT_LENGTH
+    ))
+    if URLMap.query.filter_by(short=link).first():
+        return get_unique_short_id()
+
+    return link
